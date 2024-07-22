@@ -45,6 +45,7 @@ controller.createNew = async function (req, res) {
       message: "user created successfully!",
       data: {
         token: token,
+        user: user,
       },
     });
   } catch (error) {
