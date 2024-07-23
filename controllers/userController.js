@@ -90,11 +90,80 @@ controller.login = async function (req, res) {
   }
 };
 
+// request user data
+controller.getUserData = async function (req, res) {
+  try {
+    const user = await model.user.findOne({
+      where: { id: req.params.id },
+    });
+    return res.status(200).json({ message: "success", data: user });
+  } catch (error) {
+    return res.status(500).json({ message: error.message || "Error occurred" });
+  }
+};
+
+//update user data
+controller.updateUser = async function (req, res) {
+  try {
+    const userId = req.params.id;
+    const { username, email, usernameAade, subscriptionKey, password } =
+      req.body;
+
+    // Check if the user exists
+    const user = await model.user.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the new username or email is already in use
+    if (username) {
+      const existingUsername = await model.user.findOne({
+        where: { username, id: { [sequelize.Op.ne]: userId } },
+      });
+
+      if (existingUsername) {
+        return res.status(409).json({ message: "Username already in use" });
+      }
+    }
+
+    if (email) {
+      const existingEmail = await model.user.findOne({
+        where: { email, id: { [sequelize.Op.ne]: userId } },
+      });
+
+      if (existingEmail) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+    }
+
+    // Update user details
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.username_aade = usernameAade || user.username_aade;
+    user.subscription_key_aade = subscriptionKey || user.subscription_key_aade;
+
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "User updated successfully!",
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message || "Error occurred" });
+  }
+};
+
 // request income
 controller.requestIncome = async function (req, res) {
   try {
     // Use findOne to get a single user
-
     const income = await requestIncome(req.params.id);
     return res.status(200).json({ message: "success", data: income });
   } catch (error) {
@@ -106,7 +175,6 @@ controller.requestIncome = async function (req, res) {
 controller.requestExpenses = async function (req, res) {
   try {
     // Use findOne to get a single user
-
     const expenses = await requestExpenses(req.params.id);
     return res.status(200).json({ message: "success", data: expenses });
   } catch (error) {

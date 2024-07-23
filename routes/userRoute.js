@@ -3,6 +3,8 @@ const router = express.Router();
 const controller = require("../controllers/indexController");
 router.post("/register", controller.user.createNew);
 router.post("/login", controller.user.login);
+router.get("/getUserData/:id", controller.user.getUserData);
 router.get("/requestIncome/:id", controller.user.requestIncome);
 router.get("/requestExpenses/:id", controller.user.requestExpenses);
+router.put("/updateUserData/:id", controller.user.updateUser);
 module.exports = router;
