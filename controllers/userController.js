@@ -106,8 +106,7 @@ controller.getUserData = async function (req, res) {
 controller.updateUser = async function (req, res) {
   try {
     const userId = req.params.id;
-    const { username, email, usernameAade, subscriptionKey, password } =
-      req.body;
+    const { username, email, username_aade, subscription_key_aade } = req.body;
 
     // Check if the user exists
     const user = await model.user.findOne({
@@ -142,12 +141,9 @@ controller.updateUser = async function (req, res) {
     // Update user details
     user.username = username || user.username;
     user.email = email || user.email;
-    user.username_aade = usernameAade || user.username_aade;
-    user.subscription_key_aade = subscriptionKey || user.subscription_key_aade;
-
-    if (password) {
-      user.password = await bcrypt.hash(password, 10);
-    }
+    user.username_aade = username_aade || user.username_aade;
+    user.subscription_key_aade =
+      subscription_key_aade || user.subscription_key_aade;
 
     await user.save();
 
