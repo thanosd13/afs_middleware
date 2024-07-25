@@ -14,12 +14,16 @@ const requestIncome = async (id) => {
   try {
     const { username_aade, subscription_key_aade } = await getHeaders(id);
 
-    // Calculate dateTo (current date) and dateFrom (30 days before)
+    // Calculate dateTo (current date)
     const currentDate = new Date();
     const dateTo = formatDate(currentDate);
 
-    const pastDate = new Date();
-    pastDate.setDate(currentDate.getDate() - 30);
+    // Calculate dateFrom (first day of the same month, one year before)
+    const pastDate = new Date(
+      currentDate.getFullYear() - 1,
+      currentDate.getMonth(),
+      1
+    );
     const dateFrom = formatDate(pastDate);
 
     // Construct the URL with the correct date strings
