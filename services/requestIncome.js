@@ -21,11 +21,12 @@ const requestIncome = async (id) => {
     // Calculate dateFrom (first day of the same month, one year before)
     const pastDate = new Date(
       currentDate.getFullYear() - 1,
-      currentDate.getMonth(),
+      currentDate.getMonth() - 6,
       1
     );
     const dateFrom = formatDate(pastDate);
-
+    console.log("dateFrom:", dateFrom);
+    console.log("dateTo:", dateTo);
     // Construct the URL with the correct date strings
     const url = `${process.env.REQUEST_INCOME}?dateFrom=${dateFrom}&dateTo=${dateTo}`;
 
