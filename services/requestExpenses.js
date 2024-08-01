@@ -64,4 +64,50 @@ const requestExpenses = async (id) => {
   }
 };
 
-module.exports = { requestExpenses };
+const requestExpensesWithDates = async (id, dateFrom, dateTo) => {
+  try {
+    const { username_aade, subscription_key_aade } = await getHeaders(id);
+
+    // // Format the dates
+    // const formattedDateFrom = formatDate(new Date(dateFrom));
+    // const formattedDateTo = formatDate(new Date(dateTo));
+
+    // Construct the URL with the correct date strings
+    const url = `${process.env.REQUEST_EXPENSES}?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+
+    const response = await axios.get(url, {
+      headers: {
+        "Content-Type": "application/xml",
+        Accept: "application/xml",
+        "aade-user-id": username_aade,
+        "ocp-apim-subscription-key": subscription_key_aade,
+      },
+    });
+
+    const xml = response.data;
+
+    // Decode HTML entities if necessary
+    const decodedXml = he.decode(xml);
+
+    // Parse the decoded XML
+    return new Promise((resolve, reject) => {
+      xml2js.parseString(
+        decodedXml,
+        { explicitArray: false, trim: true },
+        (err, result) => {
+          if (err) {
+            console.error("Error parsing XML:", err);
+            return resolve({ status: 500, error: "Error parsing XML" });
+          } else {
+            return resolve(result.string.RequestedBookInfo.bookInfo);
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return { status: 500, error: "Request failed" };
+  }
+};
+
+module.exports = { requestExpenses, requestExpensesWithDates };
